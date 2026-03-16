@@ -1,0 +1,210 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Learning Tracker — Mritunjay</title>
+<style>
+*{box-sizing:border-box;margin:0;padding:0}
+body{font-family:-apple-system,BlinkMacSystemFont,'Segoe UI',sans-serif;background:#f8f8f6;color:#1a1a18;min-height:100vh}
+@keyframes fadeIn{from{opacity:0;transform:translateY(6px)}to{opacity:1;transform:translateY(0)}}
+@keyframes fadeInDown{from{opacity:0;transform:translateY(-8px)}to{opacity:1;transform:translateY(0)}}
+.container{max-width:720px;margin:0 auto;padding:2rem 1.2rem}
+.dash{animation:fadeIn 0.4s ease}
+.header{display:flex;align-items:flex-start;justify-content:space-between;margin-bottom:1.4rem;gap:12px;flex-wrap:wrap}
+.header-left h1{font-size:22px;font-weight:600;color:#1a1a18;letter-spacing:-0.4px}
+.header-left p{font-size:12px;color:#73726c;margin-top:3px}
+.save-pill{font-size:11px;color:#888780;background:#f1efe8;padding:4px 10px;border-radius:20px;border:0.5px solid #d3d1c7;white-space:nowrap;align-self:flex-start;margin-top:4px}
+.stats-grid{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:10px;margin-bottom:1.2rem}
+.stat{background:#fff;border-radius:12px;padding:12px 14px;border:0.5px solid #e8e6df;transition:border-color 0.2s}
+.stat:hover{border-color:#c8c6bf}
+.stat-n{font-size:26px;font-weight:600;color:#1a1a18;line-height:1}
+.stat-l{font-size:11px;color:#888780;margin-top:4px}
+.overall-bar{height:5px;background:#e8e6df;border-radius:3px;margin-bottom:1.4rem;overflow:hidden}
+.overall-fill{height:100%;border-radius:3px;background:linear-gradient(90deg,#1D9E75,#185FA5,#534AB7);transition:width 0.6s cubic-bezier(.4,0,.2,1);width:0%}
+.tabs{display:flex;gap:6px;margin-bottom:1.2rem;flex-wrap:wrap}
+.tab{font-size:12px;font-weight:500;padding:6px 14px;border-radius:20px;border:0.5px solid #d3d1c7;background:transparent;color:#73726c;cursor:pointer;transition:all 0.18s}
+.tab:hover{background:#f1efe8;color:#1a1a18}
+.tab.active{color:#fff;border-color:transparent}
+.tab[data-id="all"].active{background:#444441}
+.tab[data-id="dsa"].active{background:#0F6E56}
+.tab[data-id="ml"].active{background:#185FA5}
+.tab[data-id="ai"].active{background:#534AB7}
+.sections{display:flex;flex-direction:column;gap:10px}
+.sec-card{background:#fff;border:0.5px solid #e8e6df;border-radius:12px;overflow:hidden;animation:fadeIn 0.3s ease;transition:border-color 0.2s}
+.sec-card:hover{border-color:#c8c6bf}
+.sec-hdr{padding:13px 15px;display:flex;align-items:center;gap:10px;cursor:pointer;user-select:none}
+.sec-accent{width:3px;border-radius:2px;flex-shrink:0;align-self:stretch;min-height:20px}
+.sec-info{flex:1;min-width:0}
+.sec-name{font-size:14px;font-weight:600;color:#1a1a18}
+.sec-sub{font-size:11px;color:#888780;margin-top:1px}
+.sec-badge{font-size:11px;font-weight:500;padding:3px 9px;border-radius:20px;white-space:nowrap;flex-shrink:0}
+.chev{width:16px;height:16px;flex-shrink:0;display:flex;align-items:center;justify-content:center;color:#888780;transition:transform 0.25s cubic-bezier(.4,0,.2,1)}
+.chev.open{transform:rotate(180deg)}
+.prog-track{height:3px;background:#e8e6df;margin:0 15px 12px}
+.prog-fill{height:100%;border-radius:2px;transition:width 0.5s cubic-bezier(.4,0,.2,1)}
+.sec-body{display:none;padding:0 15px 12px}
+.sec-body.open{display:block;animation:fadeIn 0.2s ease}
+.topic-list{display:flex;flex-direction:column;gap:1px}
+.t-wrap{border-radius:8px;overflow:hidden}
+.t-row{display:flex;align-items:center;gap:8px;padding:7px 8px;border-radius:8px;transition:background 0.15s}
+.t-row:hover{background:#f8f8f6}
+.t-row:hover .act-btns{opacity:1}
+.custom-cb{width:16px;height:16px;flex-shrink:0;position:relative;cursor:pointer}
+.custom-cb input{position:absolute;opacity:0;width:100%;height:100%;cursor:pointer;margin:0}
+.custom-cb .box{width:16px;height:16px;border-radius:4px;border:1.5px solid #c8c6bf;background:#fff;display:flex;align-items:center;justify-content:center;transition:all 0.15s;pointer-events:none}
+.custom-cb input:checked+.box{border-color:#1D9E75;background:#1D9E75}
+.custom-cb input:checked+.box svg{opacity:1}
+.custom-cb .box svg{opacity:0;transition:opacity 0.1s}
+.t-lbl{flex:1;font-size:13px;color:#1a1a18;line-height:1.4;cursor:default}
+.t-lbl.done{color:#b4b2a9;text-decoration:line-through}
+.t-lbl-inp{flex:1;font-size:13px;border:none;background:#f1efe8;color:#1a1a18;border-radius:4px;padding:2px 6px;outline:none}
+.act-btns{display:flex;gap:2px;opacity:0;transition:opacity 0.15s}
+.act-btn{width:22px;height:22px;display:flex;align-items:center;justify-content:center;border:none;background:none;cursor:pointer;border-radius:4px;color:#888780;font-size:12px;transition:background 0.12s,color 0.12s}
+.act-btn:hover{background:#f1efe8;color:#1a1a18}
+.act-btn.del:hover{background:#FCEBEB;color:#A32D2D}
+.exp-btn{width:20px;height:20px;display:flex;align-items:center;justify-content:center;border:none;background:none;cursor:pointer;border-radius:4px;color:#888780;font-size:10px;transition:transform 0.2s;flex-shrink:0}
+.exp-btn.open{transform:rotate(90deg);color:#444441}
+.sub-area{display:none;padding:0 0 4px 24px;border-left:2px solid #e8e6df;margin:0 0 2px 15px}
+.sub-area.open{display:block;animation:fadeIn 0.2s ease}
+.s-row{display:flex;align-items:center;gap:7px;padding:5px 8px;border-radius:8px;transition:background 0.15s}
+.s-row:hover{background:#f8f8f6}
+.s-row:hover .s-act{opacity:1}
+.s-cb{width:13px;height:13px;flex-shrink:0;position:relative;cursor:pointer}
+.s-cb input{position:absolute;opacity:0;width:100%;height:100%;cursor:pointer;margin:0}
+.s-cb .sbox{width:13px;height:13px;border-radius:3px;border:1.5px solid #c8c6bf;background:#fff;display:flex;align-items:center;justify-content:center;transition:all 0.15s;pointer-events:none}
+.s-cb input:checked+.sbox{border-color:#185FA5;background:#185FA5}
+.s-cb input:checked+.sbox svg{opacity:1}
+.s-cb .sbox svg{opacity:0;transition:opacity 0.1s}
+.s-lbl{flex:1;font-size:12px;color:#5f5e5a}
+.s-lbl.done{color:#b4b2a9;text-decoration:line-through}
+.s-lbl-inp{flex:1;font-size:12px;border:none;background:#f1efe8;color:#5f5e5a;border-radius:3px;padding:1px 5px;outline:none}
+.s-act{display:flex;gap:2px;opacity:0;transition:opacity 0.15s}
+.s-act-btn{width:18px;height:18px;display:flex;align-items:center;justify-content:center;border:none;background:none;cursor:pointer;border-radius:3px;color:#888780;font-size:11px;transition:background 0.12s}
+.s-act-btn.del:hover{background:#FCEBEB;color:#A32D2D}
+.note-box{background:#f8f8f6;border-radius:8px;padding:6px 10px;margin:2px 0 4px 32px;display:none;animation:fadeIn 0.2s ease;border:0.5px solid #e8e6df}
+.note-box.open{display:block}
+.note-ta{width:100%;border:none;background:transparent;font-size:12px;color:#5f5e5a;font-style:italic;resize:none;outline:none;min-height:28px}
+.add-sub{display:flex;gap:6px;margin:6px 0 2px 24px}
+.add-sub input{flex:1;font-size:12px;padding:5px 9px;border:0.5px solid #d3d1c7;border-radius:8px;background:#f8f8f6;color:#1a1a18;outline:none;transition:border-color 0.15s}
+.add-sub input:focus{border-color:#888780}
+.add-sub button{font-size:11px;padding:5px 10px;border:0.5px solid #c8c6bf;border-radius:8px;background:transparent;color:#5f5e5a;cursor:pointer;transition:all 0.15s}
+.add-sub button:hover{background:#f1efe8;color:#1a1a18}
+.add-topic{display:flex;gap:7px;margin-top:10px;padding-top:10px;border-top:0.5px solid #e8e6df}
+.add-topic input{flex:1;font-size:13px;padding:7px 11px;border:0.5px solid #d3d1c7;border-radius:8px;background:#f8f8f6;color:#1a1a18;outline:none;transition:border-color 0.15s}
+.add-topic input:focus{border-color:#888780}
+.add-topic button{font-size:12px;padding:7px 14px;border:0.5px solid #c8c6bf;border-radius:8px;background:transparent;color:#1a1a18;cursor:pointer;transition:all 0.15s;white-space:nowrap}
+.add-topic button:hover{background:#f1efe8}
+.empty{text-align:center;padding:24px;font-size:13px;color:#888780}
+</style>
+</head>
+<body>
+<div class="container">
+<div class="dash">
+  <div class="header">
+    <div class="header-left">
+      <h1>Learning Tracker</h1>
+      <p>Placement 2026 &nbsp;·&nbsp; DSA &nbsp;·&nbsp; ML/AI &nbsp;·&nbsp; AI Tools</p>
+    </div>
+    <div class="save-pill" id="save-lbl">Ready</div>
+  </div>
+  <div class="stats-grid">
+    <div class="stat"><div class="stat-n" id="s-tot">0</div><div class="stat-l">total topics</div></div>
+    <div class="stat"><div class="stat-n" id="s-dn">0</div><div class="stat-l" id="s-pct">completed</div></div>
+    <div class="stat"><div class="stat-n" id="s-lft">0</div><div class="stat-l">remaining</div></div>
+  </div>
+  <div class="overall-bar"><div class="overall-fill" id="overall-fill"></div></div>
+  <div class="tabs">
+    <button class="tab active" data-id="all" onclick="filterTab('all')">All sections</button>
+    <button class="tab" data-id="dsa" onclick="filterTab('dsa')">DSA</button>
+    <button class="tab" data-id="ml" onclick="filterTab('ml')">ML / AI</button>
+    <button class="tab" data-id="ai" onclick="filterTab('ai')">AI Tools</button>
+  </div>
+  <div class="sections" id="sec-con"></div>
+</div>
+</div>
+<script>
+const KEY='lt-v4';
+const CFG={dsa:{color:'#1D9E75',bg:'#E1F5EE',tc:'#085041'},ml:{color:'#185FA5',bg:'#E6F1FB',tc:'#0C447C'},ai:{color:'#534AB7',bg:'#EEEDFE',tc:'#3C3489'}};
+const CHECK=`<svg width="10" height="10" viewBox="0 0 10 10" fill="none"><polyline points="1.5,5 4,7.5 8.5,2.5" stroke="#fff" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"/></svg>`;
+const DEF={collapsed:{},sections:[
+  {id:'dsa',name:'DSA',sub:'Chai & Code course',topics:[
+    {id:'d1',t:'Introduction & Setup',done:false,note:'',exp:false,subs:[]},
+    {id:'d2',t:'Arrays & Strings',done:false,note:'',exp:false,subs:[{id:'d2a',t:'Two Pointers',done:false},{id:'d2b',t:'Sliding Window',done:false},{id:'d2c',t:'Hashing & HashMaps',done:false},{id:'d2d',t:'Prefix Sum',done:false}]},
+    {id:'d3',t:'Recursion & Backtracking',done:false,note:'',exp:false,subs:[{id:'d3a',t:'Recursion basics',done:false},{id:'d3b',t:'Backtracking patterns',done:false}]},
+    {id:'d4',t:'Sorting Algorithms',done:false,note:'',exp:false,subs:[{id:'d4a',t:'Bubble, Selection, Insertion',done:false},{id:'d4b',t:'Merge Sort',done:false},{id:'d4c',t:'Quick Sort',done:false}]},
+    {id:'d5',t:'Binary Search',done:false,note:'',exp:false,subs:[{id:'d5a',t:'Search on arrays',done:false},{id:'d5b',t:'Search on answers',done:false}]},
+    {id:'d6',t:'Linked List',done:false,note:'',exp:false,subs:[{id:'d6a',t:'Singly & Doubly LL',done:false},{id:'d6b',t:'Fast & Slow pointers',done:false},{id:'d6c',t:'Reversal problems',done:false}]},
+    {id:'d7',t:'Stack & Queue',done:false,note:'',exp:false,subs:[{id:'d7a',t:'Monotonic Stack',done:false},{id:'d7b',t:'Next Greater Element',done:false}]},
+    {id:'d8',t:'Trees',done:false,note:'',exp:false,subs:[{id:'d8a',t:'Binary Tree traversals',done:false},{id:'d8b',t:'BST operations',done:false},{id:'d8c',t:'Heap & Priority Queue',done:false}]},
+    {id:'d9',t:'Graphs',done:false,note:'',exp:false,subs:[{id:'d9a',t:'BFS & DFS',done:false},{id:'d9b',t:'Dijkstra',done:false},{id:'d9c',t:'Topological Sort',done:false},{id:'d9d',t:'Union Find',done:false}]},
+    {id:'d10',t:'Greedy Algorithms',done:false,note:'',exp:false,subs:[]},
+    {id:'d11',t:'Dynamic Programming',done:false,note:'',exp:false,subs:[{id:'d11a',t:'1D DP',done:false},{id:'d11b',t:'2D DP',done:false},{id:'d11c',t:'Knapsack patterns',done:false}]},
+    {id:'d12',t:'Bit Manipulation',done:false,note:'',exp:false,subs:[]},
+    {id:'d13',t:'Trie',done:false,note:'',exp:false,subs:[]},
+    {id:'d14',t:'Math & Number Theory',done:false,note:'',exp:false,subs:[]}
+  ]},
+  {id:'ml',name:'ML / AI',sub:'Krish Naik — exact sequence',topics:[
+    {id:'m1',t:'Sec 2: Introduction to ML',done:false,note:'',exp:false,subs:[{id:'m1a',t:'Types of ML',done:false},{id:'m1b',t:'ML project lifecycle',done:false}]},
+    {id:'m2',t:'Sec 3: Linear Regression',done:false,note:'',exp:false,subs:[{id:'m2a',t:'Simple & Multiple LR',done:false},{id:'m2b',t:'OLS, cost fn, gradient descent',done:false},{id:'m2c',t:'R2, MSE, MAE',done:false}]},
+    {id:'m3',t:'Sec 4: Ridge, Lasso & Elasticnet',done:false,note:'',exp:false,subs:[{id:'m3a',t:'Regularization concept',done:false},{id:'m3b',t:'Ridge (L2)',done:false},{id:'m3c',t:'Lasso (L1)',done:false},{id:'m3d',t:'Elasticnet',done:false}]},
+    {id:'m4',t:'Sec 5: ML Project Lifecycle',done:false,note:'',exp:false,subs:[{id:'m4a',t:'EDA & feature engineering',done:false},{id:'m4b',t:'Train/test split, CV',done:false},{id:'m4c',t:'Hyperparameter tuning',done:false}]},
+    {id:'m5',t:'Sec 6: Logistic Regression',done:false,note:'',exp:false,subs:[{id:'m5a',t:'Sigmoid function',done:false},{id:'m5b',t:'Binary & multiclass classification',done:false},{id:'m5c',t:'Confusion matrix, F1',done:false},{id:'m5d',t:'ROC-AUC curve',done:false}]},
+    {id:'m6',t:'Sec 7: SVM',done:false,note:'',exp:false,subs:[{id:'m6a',t:'Support vectors & hyperplane',done:false},{id:'m6b',t:'Kernel trick',done:false}]},
+    {id:'m7',t:'Sec 8: Naive Bayes',done:false,note:'',exp:false,subs:[{id:'m7a',t:'Bayes theorem',done:false},{id:'m7b',t:'Gaussian, Multinomial, Bernoulli NB',done:false}]},
+    {id:'m8',t:'Sec 9: K-Nearest Neighbor',done:false,note:'',exp:false,subs:[]},
+    {id:'m9',t:'Sec 10: Decision Tree',done:false,note:'',exp:false,subs:[{id:'m9a',t:'Entropy & information gain',done:false},{id:'m9b',t:'Gini impurity',done:false},{id:'m9c',t:'Pruning',done:false}]},
+    {id:'m10',t:'Sec 11: Random Forest',done:false,note:'',exp:false,subs:[{id:'m10a',t:'Bagging concept',done:false},{id:'m10b',t:'Feature importance',done:false}]},
+    {id:'m11',t:'Sec 12–14: Boosting Algorithms',done:false,note:'',exp:false,subs:[{id:'m11a',t:'AdaBoost',done:false},{id:'m11b',t:'Gradient Boosting',done:false},{id:'m11c',t:'XGBoost',done:false}]},
+    {id:'m12',t:'Sec 15–20: Unsupervised ML',done:false,note:'',exp:false,subs:[{id:'m12a',t:'PCA',done:false},{id:'m12b',t:'K-Means Clustering',done:false},{id:'m12c',t:'Hierarchical Clustering',done:false},{id:'m12d',t:'DBSCAN',done:false},{id:'m12e',t:'Silhouette Score',done:false},{id:'m12f',t:'Anomaly Detection',done:false}]},
+    {id:'m13',t:'Sec 22–23: MLOps Basics',done:false,note:'',exp:false,subs:[{id:'m13a',t:'Docker basics',done:false},{id:'m13b',t:'Git & GitHub for ML',done:false}]},
+    {id:'m14',t:'Sec 24: End-to-End ML Project',done:false,note:'',exp:false,subs:[{id:'m14a',t:'Data pipeline',done:false},{id:'m14b',t:'Model training & evaluation',done:false},{id:'m14c',t:'Flask/FastAPI deployment',done:false}]},
+    {id:'m15',t:'Sec 25: MLFlow, DVC, BentoML',done:false,note:'',exp:false,subs:[{id:'m15a',t:'MLFlow experiment tracking',done:false},{id:'m15b',t:'DVC data versioning',done:false},{id:'m15c',t:'BentoML model serving',done:false}]},
+    {id:'m16',t:'Sec 26: Complete NLP',done:false,note:'',exp:false,subs:[{id:'m16a',t:'Text preprocessing',done:false},{id:'m16b',t:'BoW, TF-IDF',done:false},{id:'m16c',t:'Word2Vec, GloVe',done:false},{id:'m16d',t:'Sentiment analysis project',done:false},{id:'m16e',t:'NER',done:false}]},
+    {id:'m17',t:'Sec 27: Deep Learning (Bonus)',done:false,note:'',exp:false,subs:[{id:'m17a',t:'ANN, activation functions',done:false},{id:'m17b',t:'Backpropagation & optimizers',done:false},{id:'m17c',t:'CNN basics',done:false},{id:'m17d',t:'RNN & LSTM',done:false},{id:'m17e',t:'Transformers & attention',done:false}]}
+  ]},
+  {id:'ai',name:'AI Tools & Ecosystem',sub:'Claude, MCP, n8n, LangChain & more',topics:[
+    {id:'a1',t:'Claude & Anthropic API',done:false,note:'',exp:false,subs:[{id:'a1a',t:'Claude API & prompt engineering',done:false},{id:'a1b',t:'Artifacts & Claude in projects',done:false},{id:'a1c',t:'Claude computer use',done:false}]},
+    {id:'a2',t:'MCP (Model Context Protocol)',done:false,note:'',exp:false,subs:[{id:'a2a',t:'What is MCP & why it matters',done:false},{id:'a2b',t:'Building MCP servers',done:false},{id:'a2c',t:'Connecting MCP to Claude',done:false}]},
+    {id:'a3',t:'n8n (AI Workflow Automation)',done:false,note:'',exp:false,subs:[{id:'a3a',t:'n8n basics & self-hosting',done:false},{id:'a3b',t:'AI agent nodes',done:false},{id:'a3c',t:'Webhook & API integrations',done:false},{id:'a3d',t:'RAG workflows in n8n',done:false}]},
+    {id:'a4',t:'LangChain & LlamaIndex',done:false,note:'',exp:false,subs:[{id:'a4a',t:'LangChain chains & agents',done:false},{id:'a4b',t:'LlamaIndex for RAG',done:false},{id:'a4c',t:'LangGraph',done:false}]},
+    {id:'a5',t:'Ollama (Local LLMs)',done:false,note:'',exp:false,subs:[{id:'a5a',t:'Setup & running models',done:false},{id:'a5b',t:'Qwen, LLaMA, Mistral locally',done:false},{id:'a5c',t:'API integration',done:false}]},
+    {id:'a6',t:'HuggingFace Ecosystem',done:false,note:'',exp:false,subs:[{id:'a6a',t:'Transformers library',done:false},{id:'a6b',t:'Model Hub & Datasets',done:false},{id:'a6c',t:'Fine-tuning with PEFT/LoRA',done:false},{id:'a6d',t:'Inference API',done:false}]},
+    {id:'a7',t:'Vector Databases',done:false,note:'',exp:false,subs:[{id:'a7a',t:'FAISS (local)',done:false},{id:'a7b',t:'Chroma DB',done:false},{id:'a7c',t:'Pinecone / Weaviate',done:false}]},
+    {id:'a8',t:'OpenAI API & GPT',done:false,note:'',exp:false,subs:[{id:'a8a',t:'Chat completions API',done:false},{id:'a8b',t:'Function calling / tools',done:false},{id:'a8c',t:'Assistants API',done:false}]},
+    {id:'a9',t:'Cursor / GitHub Copilot',done:false,note:'',exp:false,subs:[{id:'a9a',t:'Cursor AI editor basics',done:false},{id:'a9b',t:'Copilot in VSCode',done:false}]},
+    {id:'a10',t:'Streamlit & Gradio',done:false,note:'',exp:false,subs:[{id:'a10a',t:'Streamlit for ML demos',done:false},{id:'a10b',t:'Gradio for model sharing',done:false}]},
+    {id:'a11',t:'Faster-Whisper & Piper TTS',done:false,note:'',exp:false,subs:[{id:'a11a',t:'Faster-Whisper STT',done:false},{id:'a11b',t:'Piper TTS setup',done:false},{id:'a11c',t:'VAD',done:false}]},
+    {id:'a12',t:'LiveKit & WebRTC',done:false,note:'',exp:false,subs:[{id:'a12a',t:'LiveKit Cloud setup',done:false},{id:'a12b',t:'AI agent integration',done:false},{id:'a12c',t:'React + FastAPI + LiveKit',done:false}]}
+  ]}
+]};
+
+let state=null,saveT=null,activeTab='all';
+const noteVis={};
+function uid(){return 'u'+Math.random().toString(36).slice(2,8)}
+function load(){try{const r=localStorage.getItem(KEY);state=r?JSON.parse(r):JSON.parse(JSON.stringify(DEF));}catch(e){state=JSON.parse(JSON.stringify(DEF));}render();updateStats();}
+function save(){document.getElementById('save-lbl').textContent='Saving...';try{localStorage.setItem(KEY,JSON.stringify(state));const t=new Date();document.getElementById('save-lbl').textContent='Saved '+t.toLocaleTimeString([],{hour:'2-digit',minute:'2-digit'});}catch(e){document.getElementById('save-lbl').textContent='Save failed';}}
+function qsave(){clearTimeout(saveT);saveT=setTimeout(save,600);}
+function prog(sec){let tot=0,dn=0;sec.topics.forEach(t=>{tot++;if(t.done)dn++;(t.subs||[]).forEach(s=>{tot++;if(s.done)dn++;});});return{tot,dn,pct:tot>0?Math.round(dn/tot*100):0};}
+function updateStats(){let tot=0,dn=0;state.sections.forEach(s=>s.topics.forEach(t=>{tot++;if(t.done)dn++;(t.subs||[]).forEach(s2=>{tot++;if(s2.done)dn++;})}));document.getElementById('s-tot').textContent=tot;document.getElementById('s-dn').textContent=dn;document.getElementById('s-lft').textContent=tot-dn;document.getElementById('s-pct').textContent=(tot>0?Math.round(dn/tot*100):0)+'% done';document.getElementById('overall-fill').style.width=(tot>0?Math.round(dn/tot*100):0)+'%';}
+function filterTab(id){activeTab=id;document.querySelectorAll('.tab').forEach(t=>t.classList.toggle('active',t.dataset.id===id));render();}
+function render(){const con=document.getElementById('sec-con');con.innerHTML='';const secs=activeTab==='all'?state.sections:state.sections.filter(s=>s.id===activeTab);secs.forEach(sec=>{const p=prog(sec);const cfg=CFG[sec.id];const open=!state.collapsed[sec.id];const card=document.createElement('div');card.className='sec-card';card.innerHTML=`<div class="sec-hdr" onclick="toggleSec('${sec.id}')"><div class="sec-accent" style="background:${cfg.color}"></div><div class="sec-info"><div class="sec-name">${sec.name}</div><div class="sec-sub">${sec.sub}</div></div><span class="sec-badge" style="background:${cfg.bg};color:${cfg.tc}">${p.dn}/${p.tot} &nbsp; ${p.pct}%</span><div class="chev ${open?'open':''}"><svg width="12" height="12" viewBox="0 0 12 12" fill="none"><polyline points="2,4 6,8 10,4" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"/></svg></div></div><div class="prog-track"><div class="prog-fill" id="pf-${sec.id}" style="width:${p.pct}%;background:${cfg.color}"></div></div><div class="sec-body ${open?'open':''}" id="sb-${sec.id}"><div class="topic-list" id="tl-${sec.id}"></div><div class="add-topic"><input id="at-${sec.id}" placeholder="Add new topic..." onkeydown="if(event.key==='Enter')addT('${sec.id}')"><button onclick="addT('${sec.id}')">+ Add</button></div></div>`;con.appendChild(card);renderTopics(sec);});}
+function renderTopics(sec){const list=document.getElementById('tl-'+sec.id);if(!list)return;list.innerHTML='';if(!sec.topics.length){list.innerHTML='<div class="empty">No topics yet!</div>';return;}sec.topics.forEach(t=>{const wrap=document.createElement('div');wrap.className='t-wrap';wrap.innerHTML=`<div class="t-row"><label class="custom-cb"><input type="checkbox" ${t.done?'checked':''} onchange="toggleT('${sec.id}','${t.id}')"><div class="box">${CHECK}</div></label><span class="t-lbl ${t.done?'done':''}" id="tl-${t.id}" ondblclick="editT('${sec.id}','${t.id}')">${t.t}</span><button class="exp-btn ${t.exp?'open':''}" id="eb-${t.id}" onclick="toggleExp('${sec.id}','${t.id}')">&#9658;</button><div class="act-btns"><button class="act-btn" onclick="toggleNote('${t.id}')">&#9998;</button><button class="act-btn del" onclick="delT('${sec.id}','${t.id}')">&#10005;</button></div></div><div class="note-box ${noteVis['n'+t.id]?'open':''}" id="nb-${t.id}"><textarea class="note-ta" placeholder="Add a note..." onchange="saveNote('${sec.id}','${t.id}',this.value)">${t.note||''}</textarea></div><div class="sub-area ${t.exp?'open':''}" id="sa-${t.id}"><div id="sl-${t.id}"></div><div class="add-sub"><input id="as-${t.id}" placeholder="Add subtopic..." onkeydown="if(event.key==='Enter')addS('${sec.id}','${t.id}')"><button onclick="addS('${sec.id}','${t.id}')">+ Sub</button></div></div>`;list.appendChild(wrap);renderSubs(sec,t);});}
+function renderSubs(sec,t){const sl=document.getElementById('sl-'+t.id);if(!sl)return;sl.innerHTML='';(t.subs||[]).forEach(s=>{const sr=document.createElement('div');sr.className='s-row';sr.innerHTML=`<label class="s-cb"><input type="checkbox" ${s.done?'checked':''} onchange="toggleS('${sec.id}','${t.id}','${s.id}')"><div class="sbox">${CHECK}</div></label><span class="s-lbl ${s.done?'done':''}" id="sl-${s.id}" ondblclick="editS('${sec.id}','${t.id}','${s.id}')">${s.t}</span><div class="s-act"><button class="s-act-btn del" onclick="delS('${sec.id}','${t.id}','${s.id}')">&#10005;</button></div>`;sl.appendChild(sr);});}
+function toggleSec(id){state.collapsed[id]=!state.collapsed[id];document.getElementById('sb-'+id)?.classList.toggle('open',!state.collapsed[id]);document.querySelector(`[onclick="toggleSec('${id}')"] .chev`)?.classList.toggle('open',!state.collapsed[id]);qsave();}
+function toggleT(secId,tId){const sec=state.sections.find(s=>s.id===secId),t=sec.topics.find(x=>x.id===tId);t.done=!t.done;const lbl=document.getElementById('tl-'+tId);if(lbl)lbl.className='t-lbl'+(t.done?' done':'');updateProgBar(sec);updateStats();qsave();}
+function toggleS(secId,tId,sId){const sec=state.sections.find(s=>s.id===secId),t=sec.topics.find(x=>x.id===tId),s=t.subs.find(x=>x.id===sId);s.done=!s.done;const lbl=document.getElementById('sl-'+sId);if(lbl)lbl.className='s-lbl'+(s.done?' done':'');updateProgBar(sec);updateStats();qsave();}
+function toggleExp(secId,tId){const sec=state.sections.find(s=>s.id===secId),t=sec.topics.find(x=>x.id===tId);t.exp=!t.exp;document.getElementById('sa-'+tId)?.classList.toggle('open',t.exp);document.getElementById('eb-'+tId)?.classList.toggle('open',t.exp);qsave();}
+function toggleNote(tId){noteVis['n'+tId]=!noteVis['n'+tId];document.getElementById('nb-'+tId)?.classList.toggle('open',noteVis['n'+tId]);}
+function saveNote(secId,tId,val){state.sections.find(s=>s.id===secId).topics.find(x=>x.id===tId).note=val;qsave();}
+function editT(secId,tId){const lbl=document.getElementById('tl-'+tId);if(!lbl||lbl.tagName==='INPUT')return;const sec=state.sections.find(s=>s.id===secId),t=sec.topics.find(x=>x.id===tId);const inp=document.createElement('input');inp.className='t-lbl-inp';inp.value=t.t;lbl.replaceWith(inp);inp.focus();inp.select();const done=()=>{t.t=inp.value.trim()||t.t;const sp=document.createElement('span');sp.className='t-lbl'+(t.done?' done':'');sp.id='tl-'+tId;sp.textContent=t.t;sp.ondblclick=()=>editT(secId,tId);inp.replaceWith(sp);qsave();};inp.onblur=done;inp.onkeydown=e=>{if(e.key==='Enter')done();if(e.key==='Escape'){inp.value=t.t;done();}};}
+function editS(secId,tId,sId){const lbl=document.getElementById('sl-'+sId);if(!lbl||lbl.tagName==='INPUT')return;const sec=state.sections.find(s=>s.id===secId),t=sec.topics.find(x=>x.id===tId),s=t.subs.find(x=>x.id===sId);const inp=document.createElement('input');inp.className='s-lbl-inp';inp.value=s.t;lbl.replaceWith(inp);inp.focus();inp.select();const done=()=>{s.t=inp.value.trim()||s.t;const sp=document.createElement('span');sp.className='s-lbl'+(s.done?' done':'');sp.id='sl-'+sId;sp.textContent=s.t;sp.ondblclick=()=>editS(secId,tId,sId);inp.replaceWith(sp);qsave();};inp.onblur=done;inp.onkeydown=e=>{if(e.key==='Enter')done();if(e.key==='Escape'){inp.value=s.t;done();}};}
+function addT(secId){const inp=document.getElementById('at-'+secId);const txt=inp.value.trim();if(!txt)return;state.sections.find(s=>s.id===secId).topics.push({id:uid(),t:txt,done:false,note:'',exp:false,subs:[]});inp.value='';const sec=state.sections.find(s=>s.id===secId);renderTopics(sec);updateProgBar(sec);updateStats();qsave();}
+function addS(secId,tId){const inp=document.getElementById('as-'+tId);const txt=inp.value.trim();if(!txt)return;const sec=state.sections.find(s=>s.id===secId),t=sec.topics.find(x=>x.id===tId);if(!t.subs)t.subs=[];t.subs.push({id:uid(),t:txt,done:false});inp.value='';renderSubs(sec,t);updateProgBar(sec);updateStats();qsave();}
+function delT(secId,tId){const sec=state.sections.find(s=>s.id===secId);sec.topics=sec.topics.filter(x=>x.id!==tId);renderTopics(sec);updateProgBar(sec);updateStats();qsave();}
+function delS(secId,tId,sId){const sec=state.sections.find(s=>s.id===secId),t=sec.topics.find(x=>x.id===tId);t.subs=t.subs.filter(x=>x.id!==sId);renderSubs(sec,t);updateProgBar(sec);updateStats();qsave();}
+function updateProgBar(sec){const p=prog(sec);const cfg=CFG[sec.id];const fill=document.getElementById('pf-'+sec.id);if(fill)fill.style.width=p.pct+'%';const badge=document.querySelector(`#sb-${sec.id}`)?.closest('.sec-card')?.querySelector('.sec-badge');if(badge)badge.textContent=`${p.dn}/${p.tot}   ${p.pct}%`;}
+load();
+</script>
+</body>
+</html>
